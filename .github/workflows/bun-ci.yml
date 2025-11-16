@@ -1,0 +1,53 @@
+# ชื่อของ Workflow ที่จะแสดงในหน้า Actions ของ GitHub
+name: Bun CI
+
+# กำหนดว่าจะให้ workflow นี้ทำงานเมื่อไหร่
+on:
+  # ทำงานเมื่อมีการ push ไปยัง branch 'main'
+  push:
+    branches: [ "main" ]
+  # ทำงานเมื่อมีการเปิด Pull Request มายัง branch 'main'
+  pull_request:
+    branches: [ "main" ]
+
+# กำหนด "งาน" (jobs) ที่จะรัน
+jobs:
+  # ชื่องาน (คุณสามารถตั้งชื่อเองได้)
+  build-and-test:
+    # OS ที่จะใช้รัน (แนะนำ ubuntu-latest)
+    runs-on: ubuntu-latest
+
+    # ขั้นตอน (steps) ที่จะทำงาน
+    steps:
+      # 1. Checkout โค้ด
+      # ดึงโค้ดจาก repository ของคุณมาไว้ใน runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. ติดตั้ง Bun
+      # ใช้ Action "oven-sh/setup-bun" ซึ่งเป็น action อย่างเป็นทางการ
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          # คุณสามารถระบุเวอร์ชันของ Bun ได้ หรือใช้ 'latest'
+          bun-version: latest 
+
+      # 3. ติดตั้ง Dependencies
+      # รันคำสั่ง 'bun install' เพื่อติดตั้ง packages
+      - name: Install dependencies
+        run: bun install
+
+      # 4. (Optional) รัน Linter
+      # ถ้าคุณมี script "lint" ใน package.json
+      - name: Run linter
+        run: bun run lint # หรือ 'bun lint' ถ้าใช้ command โดยตรง
+
+      # 5. รัน Tests
+      # รันคำสั่ง 'bun test'
+      - name: Run tests
+        run: bun test
+
+      # 6. (Optional) รัน Build
+      # ถ้าโปรเจกต์ของคุณต้องมีการ build (เช่น Next.js, Svelte, etc.)
+      - name: Run build
+        run: bun run build # รัน script "build" ใน package.json
