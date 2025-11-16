@@ -1,0 +1,14 @@
+FROM rust:1-alpine
+
+WORKDIR /usr/src/app
+
+# ติดตั้ง cargo-watch สำหรับ live reloading
+RUN cargo install cargo-watch
+
+# (Optional) ติดตั้ง dependencies อื่นๆ ที่จำเป็นสำหรับ dev
+# RUN apk add --no-cache ...
+
+# คำสั่ง default นี้จะถูกรันโดย docker-compose
+# โดย docker-compose จะ mount volume ทับเข้ามาเอง
+# `cargo-watch` จะ re-compile ให้อัตโนมัติเมื่อไฟล์ใน volume (โค้ดของเรา) เปลี่ยน
+CMD ["cargo", "watch", "-x", "run"]
