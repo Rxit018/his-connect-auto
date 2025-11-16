@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # === Production Service ===
+  # รันด้วย: docker compose --profile prod up --build
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile # ใช้ Dockerfile (production)
+    image: my-rust-app:latest
+    container_name: my-rust-app-prod
+    ports:
+      - "8000:8000" # แก้ไข port ตามที่ app ของคุณใช้
+    environment:
+      - RUST_LOG=info
+    restart: unless-stopped
+    profiles: ["prod"] 
+
+  # === Development Service ===
+  # รันด้วย: docker compose up (นี่คือ default)
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: my-rust-app-dev
+    volumes:
+      # Mount โค้ดทั้งโปรเจกต์เข้าไปใน container
+      - .:/usr/src/app
+      # Cache ตัว registry ของ Cargo (กัน download ใหม่ทุกครั้ง)
+      - cargo-cache:/usr/local/cargo/registry
+      # Cache โฟลเดอร์ target (กัน compile ใหม่ทั้งหมดทุกครั้ง)
+      - target-cache:/usr/src/app/target
+    ports:
+      - "8000:8000" # แก้ไข port ตามที่ app ของคุณใช้
+    environment:
+      - RUST_LOG=debug
+    # 'default' และ 'dev' profile
+    # ทำให้เมื่อรัน `docker compose up` service นี้จะรันอัตโนมัติ
+    profiles: ["dev", "default"] 
+
+volumes:
+  cargo-cache:
+  target-cache:
